@@ -1,0 +1,31 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/back_grey"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="2dp"
+        android:text="@string/description"
+        tools:context=".MainActivity" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:onClick="onClick"
+        android:src="@drawable/cam_green_round" />
+
+    <ImageButton
+        android:layout_width="124dp"
+        android:layout_height="70dp"
+        android:layout_gravity="center"
+        android:layout_weight="0.10"
+        android:onClick="onClick"
+        android:src="@drawable/settings_red_round" />
+
+</LinearLayout>

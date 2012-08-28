@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" 
+    android:gravity="bottom|right">  <!-- не забудьте -->
+    
+    <ImageButton
+        android:onClick="onClick"
+        android:id="@+id/bStart"  
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content" 
+        android:src="@drawable/start" 
+        android:layout_margin="1px"/>
+    <ImageButton
+        android:onClick="onClick"
+        android:id="@+id/bTake"  
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content" 
+        android:src="@drawable/fix" 
+        android:layout_margin="1px"/>
+    <ImageButton
+        android:onClick="onClick"
+        android:id="@+id/bStop"  
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content" 
+        android:src="@drawable/stop" 
+        android:layout_margin="1px"/>  
+         
+</LinearLayout>
