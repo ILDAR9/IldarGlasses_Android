@@ -13,11 +13,11 @@ import java.util.Scanner;
 
 public class ImageWork {
 	private static final String LOG_TAG = "Ildar_glasses";
-	private int hashCode[] = new int[3], maxDist = 7;
+	private int hashCode[] = new int[3], maxDist = 7, simplePix[];
 	private Bitmap img;
 	private boolean isException;
 
-	// construcot FILE
+	// constructor FILE
 	/*
 	 * public ImageWork(File file){ loadImage(file); }
 	 */
@@ -56,32 +56,34 @@ public class ImageWork {
 	 * return img; }
 	 */
 
-	private Bitmap deleteRGB(Bitmap img) { // taking
+	public int[] deleteRGB(Bitmap img) { // taking
 											// several
 											// common parts
 											// of R, G and B
-		int temp;
+		
 		Log.d(LOG_TAG, "Deleting RGB canal...");
-		for (int i = 0; i < img.getHeight(); i++) {			
+		int temp;		
+		int[] ans = new int[img.getHeight()* img.getWidth()];
+		for (int i = 0; i < img.getHeight(); i++) {
 			for (int j = 0; j < img.getWidth(); j++) {
 				temp = img.getPixel(j, i);
-				int r = (int) ((temp & 0xff) * 0.3);				
+				int r = (int) ((temp & 0xff) * 0.3);
 				int g = temp & 0xff00;
 				g >>>= 8;
-				g = (int) (0.59 * g);		
+				g = (int) (0.59 * g);
 				int b = temp & 0xff0000;
 				b >>>= 16;
 				b = (int) (0.11 * b);
 				temp = 0;
 				temp = r + g + b;
-				img.setPixel(j, i, temp);
-			}			
+				ans[img.getHeight() * i+j] = temp;
+			}
 		}
 		Log.d(LOG_TAG, "RGB canal is replaced by one gray canal.");
-		return img;
-	}
+		return ans;
+	}	
 
-	private static Bitmap scale(Bitmap image, int width, int height) {
+	public static Bitmap scale(Bitmap image, int width, int height) {
 		Log.d(LOG_TAG, "Scaliing...");
 		Bitmap scaledImg = Bitmap.createScaledBitmap(image, width, height,
 				image.hasAlpha());
@@ -91,31 +93,33 @@ public class ImageWork {
 
 	private int averageSum() {
 		if (img == null) {
+			Log.d(LOG_TAG, "There is no image...");
 			return -1;
 		}
 		img = scale(img, 8, 8);
-		img = deleteRGB(img);
+		int size = img.getHeight() * img.getWidth();
+		simplePix = new int[size];
+		simplePix = deleteRGB(img);
 
 		int sum = 0;
-		for (int i = 0; i < img.getHeight(); i++) {
-			for (int j = 0; j < img.getWidth(); j++) {
-				sum += img.getPixel(j, i);
-			}
+		for (int x : simplePix){
+			sum += x;
 		}
-		return sum / (img.getHeight() * img.getWidth());
+		int averageSum = sum / (size);
+		Log.d(LOG_TAG, String.format("Average sum = %d" , averageSum));
+		return averageSum;
 	}
 
-	private int toBite(Bitmap img, int averageSum, int start, int end) {
+	private int toBite(int averageSum, int start, int end) {
 		int temp = 0;
 		for (int i = start; i < end; i++) {
 			for (int j = 0; j < img.getWidth(); j++) {
-				if (img.getPixel(j, i) < averageSum) {
+				if (simplePix[i*8 + j] < averageSum) {
 					temp += 1;
 				}
 				temp <<= 1;
 			}
 		}
-		Log.d(LOG_TAG, "Creating image hash...");
 		return temp;
 	}
 
@@ -142,11 +146,13 @@ public class ImageWork {
 		sum += xorCounter(hashCode[0], firstPart0);
 		sum += xorCounter(hashCode[1], secondPart0);
 		sum += xorCounter(hashCode[2], lastPart0);
+
 		return sum;
 	}
 
 	public int[] getHemingDistance() {
-		getHardHash();
+		int averageSum = averageSum();
+		createHashCode(averageSum);
 		return hashCode;
 
 	}
@@ -160,17 +166,13 @@ public class ImageWork {
 		return temp0;
 	}
 
-	private void getHardHash() {
-		int averageSum = averageSum();
-		hashCode[0] = toBite(img, averageSum, 0, 3);
-		hashCode[1] = toBite(img, averageSum, 3, 6);
-		hashCode[2] = toBite(img, averageSum, 6, 8);
-	}
-
-	private void getSimpleHash(int averageSum) {
-		hashCode[0] = toBite(img, averageSum, 0, 3);
-		hashCode[1] = toBite(img, averageSum, 3, 6);
-		hashCode[2] = toBite(img, averageSum, 6, 8);
+	private void createHashCode(int averageSum) {
+		Log.d(LOG_TAG, "Creating image hash...");
+		hashCode[0] = toBite(averageSum, 0, 3);
+		Log.d(LOG_TAG, "hashcode[0] = " + hashCode[0]);
+		hashCode[1] = toBite(averageSum, 3, 6);
+		hashCode[2] = toBite(averageSum, 6, 8);
+		Log.d(LOG_TAG, "Image hash is created.");
 	}
 	/*
 	 * 2 public void compareImagesTest(File file) { List<String> ans; int max =

@@ -28,50 +28,52 @@ public class CamTakePicture extends Activity implements SurfaceHolder.Callback {
 	private ImageWork imgWork;
 	private TextView textInfo;
 	private ImageButton bStart;
-	private ImageButton bStop;	
-	private ImageButton bTake;	
-	
+	private ImageButton bStop;
+	private ImageButton bTake;
+
 	private SurfaceView surView;
 	private SurfaceHolder surHolder;
-	
+
 	private Camera camera;
 	private boolean isCameraPreview = false;
+
 	class RenderView extends View {
 		Bitmap image;
 		Rect dst = new Rect();
 		Paint paint = new Paint();
 
-		RenderView(Context context,Bitmap image) {
+		RenderView(Context context, Bitmap image) {
 			super(context);
 			this.image = image;
-			
 
 		}
+
 		@Override
 		protected void onDraw(Canvas canvas) {
-			canvas.drawColor(Color.BLACK);
+			canvas.drawColor(Color.WHITE);
 			dst.set(50, 50, 550, 750);
 			canvas.drawBitmap(image, null, dst, null);
 			paint.setARGB(255, 0, 255, 0);
 		}
 	}
-	
-    private ShutterCallback shutter = new ShutterCallback(){
+
+	private ShutterCallback shutter = new ShutterCallback() {
 		@Override
-		public void onShutter() { }
+		public void onShutter() {
+		}
 	};
 
-	private PictureCallback raw = new PictureCallback(){
-		@Override
-		public void onPictureTaken(byte[] arg0, Camera arg1) { }
-	};
-	
-	PictureCallback jpg = new PictureCallback(){
+	private PictureCallback raw = new PictureCallback() {
 		@Override
 		public void onPictureTaken(byte[] arg0, Camera arg1) {
-			Bitmap bitmapPicture
-				= BitmapFactory.decodeByteArray(arg0, 0, arg0.length);			
-			setContentView(new RenderView(getBaseContext(), bitmapPicture));	
+		}
+	};
+
+	PictureCallback jpg = new PictureCallback() {
+		@Override
+		public void onPictureTaken(byte[] arg0, Camera arg1) {
+			Bitmap bitmapPicture = BitmapFactory.decodeByteArray(arg0, 0,
+					arg0.length);
 			imgWork.setImg(bitmapPicture);
 			int hash[] = imgWork.getHemingDistance();
 			textInfo.setText("");
@@ -79,58 +81,61 @@ public class CamTakePicture extends Activity implements SurfaceHolder.Callback {
 				textInfo.append(Integer.toString(x) + "\n");
 			}
 			bitmapPicture = imgWork.getImg();
+
 			camera.startPreview();
 		}
 	};
-		
-	AutoFocusCallback myAutoFocusCallback = new AutoFocusCallback(){
+
+	AutoFocusCallback myAutoFocusCallback = new AutoFocusCallback() {
 
 		@Override
 		public void onAutoFocus(boolean arg0, Camera arg1) {
-		    // TODO Auto-generated method stub
+			// TODO Auto-generated method stub
 			bTake.setEnabled(true);
 		}
 	};
-		   
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-	    super.onCreate(savedInstanceState);
-	    setContentView(R.layout.camera_preview);
-	    imgWork = new ImageWork();
-	    textInfo = (TextView) findViewById(R.id.text_info);
-	    surView = (SurfaceView)findViewById(R.id.surfaceview);
-	    surHolder = surView.getHolder();
-	    surHolder.addCallback(this);
-	    surHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-	  
-	    LayoutInflater inflater = LayoutInflater.from(getBaseContext());
-	    View overlay = inflater.inflate(R.layout.overlay, null);
-	    LayoutParams params = new LayoutParams(
-	    		LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-	    addContentView(overlay, params);
-	    
-		bStart = (ImageButton)overlay.findViewById(R.id.bStart);
-		bStop = (ImageButton)overlay.findViewById(R.id.bStop);
-		bTake = (ImageButton)overlay.findViewById(R.id.bTake);
-		
-		bStop.setEnabled(isCameraPreview);		
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.camera_preview);
+		imgWork = new ImageWork();
+		textInfo = (TextView) findViewById(R.id.text_info);
+		surView = (SurfaceView) findViewById(R.id.surfaceview);
+		surHolder = surView.getHolder();
+		surHolder.addCallback(this);
+		surHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
+		LayoutInflater inflater = LayoutInflater.from(getBaseContext());
+		View overlay = inflater.inflate(R.layout.overlay, null);
+		LayoutParams params = new LayoutParams(LayoutParams.FILL_PARENT,
+				LayoutParams.FILL_PARENT);
+		addContentView(overlay, params);
+
+		bStart = (ImageButton) overlay.findViewById(R.id.bStart);
+		bStop = (ImageButton) overlay.findViewById(R.id.bStop);
+		bTake = (ImageButton) overlay.findViewById(R.id.bTake);
+
+		bStop.setEnabled(isCameraPreview);
 		bTake.setEnabled(false);
 	}
-	
-	@Override
-	public void surfaceChanged(
-			SurfaceHolder holder, int format, int width, int height) { }
 
 	@Override
-	public void surfaceCreated(SurfaceHolder holder) { }
+	public void surfaceChanged(SurfaceHolder holder, int format, int width,
+			int height) {
+	}
 
 	@Override
-	public void surfaceDestroyed(SurfaceHolder holder) { 
+	public void surfaceCreated(SurfaceHolder holder) {
+	}
+
+	@Override
+	public void surfaceDestroyed(SurfaceHolder holder) {
 		if (isCameraPreview) {
 			camera.stopPreview();
-			camera.release(); 
+			camera.release();
 			isCameraPreview = false;
-		}
+		}		
 	}
 
 	public void onClick(View v) {
@@ -142,27 +147,28 @@ public class CamTakePicture extends Activity implements SurfaceHolder.Callback {
 				camera.startPreview();
 				isCameraPreview = true;
 				camera.autoFocus(myAutoFocusCallback);
-				
+
 				bStart.setEnabled(!isCameraPreview);
 				bStop.setEnabled(isCameraPreview);
-			} 
-			catch (IOException e) {
-			   Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+			} catch (IOException e) {
+				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
 			}
 			break;
 		case R.id.bTake:
 			camera.takePicture(shutter, raw, jpg);
-			break;	
+			break;
 		case R.id.bStop:
-			camera.stopPreview();
-			camera.release(); 
+			if (isCameraPreview) {
+				camera.stopPreview();
+			}
+			camera.release();
 			isCameraPreview = false;
-				
+
 			bStart.setEnabled(!isCameraPreview);
 			bTake.setEnabled(false);
 			bStop.setEnabled(isCameraPreview);
 			break;
-		}		
+		}
 	}
-	
+
 }
