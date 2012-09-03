@@ -1,6 +1,7 @@
 package com.example.ildarglasses;
 
 import java.io.IOException;
+import java.nio.CharBuffer;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,6 +16,7 @@ import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -25,18 +27,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class CamTakePicture extends Activity implements SurfaceHolder.Callback {
+	private static final String LOG_TAG = "Ildar_glasses";
+	//Tools
 	private ImageWork imgWork;
-	private TextView textInfo;
+	private HashBase hashBase;	
+	
+	//From addon layout	
 	private ImageButton bStart;
 	private ImageButton bStop;
 	private ImageButton bTake;
-
+	
+	//From main layout
+	private TextView textInfo;
 	private SurfaceView surView;
 	private SurfaceHolder surHolder;
 
 	private Camera camera;
 	private boolean isCameraPreview = false;
 
+	//addon for showing any image
 	class RenderView extends View {
 		Bitmap image;
 		Rect dst = new Rect();
@@ -72,22 +81,37 @@ public class CamTakePicture extends Activity implements SurfaceHolder.Callback {
 	PictureCallback jpg = new PictureCallback() {
 		@Override
 		public void onPictureTaken(byte[] arg0, Camera arg1) {
-			Bitmap bitmapPicture = BitmapFactory.decodeByteArray(arg0, 0,
+			Bitmap camImg = BitmapFactory.decodeByteArray(arg0, 0,
 					arg0.length);
-			imgWork.setImg(bitmapPicture);
-			int hash[] = imgWork.getHemingDistance();
-			textInfo.setText("");
-			for (int x : hash) {
-				textInfo.append(Integer.toString(x) + "\n");
-			}
-			bitmapPicture = imgWork.getImg();
-
+			imgWork = new ImageWork(camImg, 8);
+			int hashCode[] = imgWork.getImageHash();
+			//Write to Text_View 1's and 0's
+			hashWrite(hashCode);			
+			String description = null;
+			hashBase.addValues(hashCode, camImg,description);
 			camera.startPreview();
 		}
 	};
+	
+	private void hashWrite(int[] hashCode){
+		StringBuffer sb = new StringBuffer();
+		textInfo.setText("");
+		for (int x : hashCode) {
+			sb.setLength(0);
+			while(x != 0){
+				if (x%2 == 1){
+					sb.append('1');
+				}else{
+					sb.append('0');
+				}
+				x/= 2;
+			}
+			textInfo.append(sb.reverse().toString());
+		}
+		textInfo.append("\n");
+	} 
 
 	AutoFocusCallback myAutoFocusCallback = new AutoFocusCallback() {
-
 		@Override
 		public void onAutoFocus(boolean arg0, Camera arg1) {
 			// TODO Auto-generated method stub
@@ -99,13 +123,16 @@ public class CamTakePicture extends Activity implements SurfaceHolder.Callback {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.camera_preview);
-		imgWork = new ImageWork();
+		//database helper
+		hashBase = new HashBase(this);
+		
 		textInfo = (TextView) findViewById(R.id.text_info);
+		
 		surView = (SurfaceView) findViewById(R.id.surfaceview);
 		surHolder = surView.getHolder();
 		surHolder.addCallback(this);
-		surHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
+		// insert second layout (3 buttons on surfaceView)
 		LayoutInflater inflater = LayoutInflater.from(getBaseContext());
 		View overlay = inflater.inflate(R.layout.overlay, null);
 		LayoutParams params = new LayoutParams(LayoutParams.FILL_PARENT,
@@ -135,7 +162,7 @@ public class CamTakePicture extends Activity implements SurfaceHolder.Callback {
 			camera.stopPreview();
 			camera.release();
 			isCameraPreview = false;
-		}		
+		}
 	}
 
 	public void onClick(View v) {
@@ -151,7 +178,9 @@ public class CamTakePicture extends Activity implements SurfaceHolder.Callback {
 				bStart.setEnabled(!isCameraPreview);
 				bStop.setEnabled(isCameraPreview);
 			} catch (IOException e) {
-				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+				Log.e(LOG_TAG,
+						"Can't set preview display from camera to SurfaceView\n"
+								+ e.toString());
 			}
 			break;
 		case R.id.bTake:
@@ -160,10 +189,9 @@ public class CamTakePicture extends Activity implements SurfaceHolder.Callback {
 		case R.id.bStop:
 			if (isCameraPreview) {
 				camera.stopPreview();
+				isCameraPreview = false;
 			}
-			camera.release();
-			isCameraPreview = false;
-
+			camera.release();			
 			bStart.setEnabled(!isCameraPreview);
 			bTake.setEnabled(false);
 			bStop.setEnabled(isCameraPreview);
