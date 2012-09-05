@@ -7,14 +7,15 @@
         android:minSdkVersion="10"
         android:targetSdkVersion="15" />
     <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
-            android:label="@string/title_activity_main" >
+            android:name=".mainactivity.MainActivity"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -23,12 +24,24 @@
         </activity>
         <activity
             android:name=".BitmapLoaded"
-            android:label="@string/title_activity_main" >
+            android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="CamTakePicture"
-            android:label="@string/title_activity_main" >
+            android:name=".CamTakePicture"
+            android:label="@string/app_name" >
         </activity>
+        <activity
+            android:name=".BDViewer"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name=".mainactivity.Settings"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name=".mainactivity.PrefActivity"
+            android:label="@string/app_name" >
+        </activity>        
         
         
     </application>

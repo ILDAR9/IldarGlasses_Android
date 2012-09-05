@@ -6,5 +6,19 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="btn_search">Search</string>
     <string name="description">Search by photo:</string>
+    <string name="btn_truncate">Truncate database</string>
+    <string name="btn_clear">Correct database</string>
+    <string name="text_left">All</string>
+    <string name="text_right">100%</string>
+    <string name="scroll_dscpt">Set the level of search task</string>
+ <!-- "add images || search '...' || reset database || show '...' || adjust database || exit"); -->
+    <string-array name="entries">
+        <item>Truncate database</item>
+        <item>Adjust database </item>        
+    </string-array>
+    <string-array name="entry_values">
+        <item>1</item>
+        <item>2</item>        
+    </string-array>
 
 </resources>

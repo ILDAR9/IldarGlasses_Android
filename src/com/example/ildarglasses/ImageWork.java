@@ -1,8 +1,6 @@
 package com.example.ildarglasses;
 
 import java.io.File;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Scanner;
 
 import android.graphics.Bitmap;
@@ -10,8 +8,9 @@ import android.util.Log;
 
 public class ImageWork {
 	private static final String LOG_TAG = "Ildar_glasses";
-	private int hashCode[] = new int[3], maxDist, simplePix[],scaleTo;	
+	private int hashCode[] = new int[3], maxDist, simplePix[], scaleTo;
 	private boolean isException;
+	private char[] binaryView;
 
 	// constructor FILE
 	/*
@@ -27,11 +26,16 @@ public class ImageWork {
 		int size = scaleTo * scaleTo;
 		simplePix = new int[size];
 		simplePix = deleteRGB(img);
+		binaryView = new char[64];
 		int averageSum = averageSum();
 		createHashCode(averageSum);
 	}
 
-	public int[] getImageHash() {		
+	public char[] getBinaryView() {
+		return binaryView;
+	}
+
+	public int[] getImageHash() {
 		return hashCode;
 	}
 
@@ -99,17 +103,22 @@ public class ImageWork {
 		for (int x : simplePix) {
 			sum += x;
 		}
-		int averageSum = sum / (scaleTo*scaleTo);
+		int averageSum = sum / (scaleTo * scaleTo);
 		Log.d(LOG_TAG, String.format("Average number = %d", averageSum));
 		return averageSum;
 	}
 
 	private int toBite(int averageSum, int start, int end) {
 		int temp = 0;
+		int index;
 		for (int i = start; i < end; i++) {
 			for (int j = 0; j < scaleTo; j++) {
-				if (simplePix[i * scaleTo + j] < averageSum) {
+				index = i * scaleTo + j;
+				if (simplePix[index] < averageSum) {
 					temp += 1;
+					binaryView[index] = '1';
+				} else {
+					binaryView[index] = '0';
 				}
 				temp <<= 1;
 			}
@@ -219,27 +228,27 @@ public class ImageWork {
 	// }
 	// }
 
-//	public static Iterator<String> testStartSearch(File file) { int
-//	  averageSum = averageSum(file);
-//	if (averageSum == -1) { 
-//		return null; 
-//		}
-//	  getSimpleHash(averageSum);
-//	  List<String> ans; // set of founded images int
-//	  max = 3; // start from max = 3 to maxDist 
-//	  do { max += 2; ans =
-//	  HashBase.startSearch(max); 
-//	    } while (!isException && max <= maxDist && ans.isEmpty()); 
-//	  maxDist HashBase.end(); 
-//	  if (isException) {
-//		  System.err.println("There is a database's Exception"); return null; } if
-//		  (ans.isEmpty()) { System.out
-//			  .println("--------------------There is no same image )-;"); return null;
-//	  } System.out.println("max = " + max);
-//	  
-//	  return ans.iterator(); 
-//	 }
-	
+	// public static Iterator<String> testStartSearch(File file) { int
+	// averageSum = averageSum(file);
+	// if (averageSum == -1) {
+	// return null;
+	// }
+	// getSimpleHash(averageSum);
+	// List<String> ans; // set of founded images int
+	// max = 3; // start from max = 3 to maxDist
+	// do { max += 2; ans =
+	// HashBase.startSearch(max);
+	// } while (!isException && max <= maxDist && ans.isEmpty());
+	// maxDist HashBase.end();
+	// if (isException) {
+	// System.err.println("There is a database's Exception"); return null; } if
+	// (ans.isEmpty()) { System.out
+	// .println("--------------------There is no same image )-;"); return null;
+	// } System.out.println("max = " + max);
+	//
+	// return ans.iterator();
+	// }
+
 	// static void imagesToSQL(File file) {
 	// getSimpleHash(averageSum(file));
 	// HashBase.addValues(hashCode, file, null);

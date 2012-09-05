@@ -15,8 +15,6 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 
 public class BitmapLoaded extends Activity {
 	private final String LOG_TAG = "Ildar_glasses";
